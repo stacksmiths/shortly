@@ -1,0 +1,56 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "shortly"
+version = "0.1.1"
+description = "FastAPI-powered URL shortener for quick, reliable links"
+authors = ["John Ajera <your-email@example.com>"]
+readme = "README.rst"
+license = "MIT"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Framework :: FastAPI",
+]
+
+[tool.poetry.dependencies]
+python = ">=3.9"
+fastapi = ">=0.115.6"
+pydantic = ">=2.10.5"
+qrcode = {extras = ["pil"], version = ">=7.3.1"}
+uvicorn = ">=0.34.0"
+
+[tool.poetry.group.dev.dependencies]
+black = ">=24.10.0"
+docutils = ">=0.21.2"
+httpx = ">=0.28.1"
+Pygments = ">=2.19.1"
+pylint = ">=3.3.3"
+pytest = ">=8.3.4"
+pytest-asyncio = ">=0.25.2"
+pytest-cov = ">=6.0.0"
+twine = ">=6.0.1"
+
+[tool.poetry.scripts]
+shortly = "src.shortly.main:main"
+
+[tool.poetry.urls]
+Homepage = "https://github.com/stacksmiths/shortly"
+Issues = "https://github.com/stacksmiths/shortly/issues"
+
+[tool.black]
+line-length = 79
+target-version = ["py39", "py310", "py311", "py312", "py313"]
+
+[tool.flake8]
+max-line-length = 79
+extend-ignore = ["E203", "W503"]
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
