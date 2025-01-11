@@ -117,11 +117,14 @@ jobs:
     permissions:
       id-token: write # IMPORTANT: mandatory for trusted publishing
 
+    env:
+      PYTHON_VERSION: 3.13
+
     steps:
-      - name: Download artifact for Python ${{ matrix.python-version }}
+      - name: Download artifact for Python ${{ env.PYTHON_VERSION }}
         uses: actions/download-artifact@v4
         with:
-          name: shortly-3.13
+          name: shortly-${{ env.PYTHON_VERSION }}
           path: dist/
 
       - name: Publish distribution 📦 to TestPyPI # Note: Although we build multiple versions, only one is uploaded
