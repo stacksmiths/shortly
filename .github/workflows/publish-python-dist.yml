@@ -29,12 +29,10 @@ jobs:
           curl -sSL https://install.python-poetry.org | python3 -
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Install dependencies with Poetry
+      - name: Install Build Requirements
         run: |
-          poetry install --with dev
-
-      - name: Set PYTHONPATH to include the source directory
-        run: echo "PYTHONPATH=$PWD/src" >> $GITHUB_ENV
+          poetry self add poetry-core
+          poetry install --no-root
 
       - name: Build the Python distribution
         run: poetry build
@@ -45,12 +43,45 @@ jobs:
           name: shortly-${{ matrix.python-version }}
           path: dist/
 
+  test:
+    name: Test package installation 🧪
+    needs: build
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+
+    steps:
+      - name: Download artifact for Python ${{ matrix.python-version }}
+        uses: actions/download-artifact@v4
+        with:
+          name: shortly-${{ matrix.python-version }}
+          path: dist/
+
+      - name: Upgrade pip
+        run: python3 -m pip install --upgrade pip
+
+      - name: Test installation
+        run: pip install dist/*.whl
+
+      - name: Assert Dependencies Installed
+        run: |
+          REQUIRED_PACKAGES=("fastapi" "pydantic" "qrcode" "uvicorn")
+          for package in "${REQUIRED_PACKAGES[@]}"; do
+            if ! python3 -m pip show "$package" > /dev/null 2>&1; then
+              echo "Error: $package is not installed."
+              exit 1
+            else
+              echo "Verified: $package is installed."
+            fi
+          done
+
   publish-to-pypi:
-    name: >-
-      Publish Python 🐍 distribution 📦 to PyPI
+    name: Publish Python 🐍 distribution 📦 to PyPI
     if: startsWith(github.ref, 'refs/tags/') # only publish to PyPI on tag pushes
     needs:
-      - build
+      - test
     runs-on: ubuntu-latest
     environment:
       name: pypi
@@ -59,7 +90,7 @@ jobs:
       id-token: write # IMPORTANT: mandatory for trusted publishing
 
     steps:
-      - name: Download all the dists
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: shortly-${{ env.PYTHON_VERSION }}
@@ -68,9 +99,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
 
   github-release:
-    name: >-
-      Sign the Python 🐍 distribution 📦 with Sigstore
-      and upload them to GitHub Release
+    name: Create GitHub Release
     needs:
       - publish-to-pypi
     runs-on: ubuntu-latest
@@ -80,7 +109,7 @@ jobs:
       id-token: write # IMPORTANT: mandatory for sigstore
 
     steps:
-      - name: Download all the dists
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: shortly-${{ env.PYTHON_VERSION }}
@@ -88,13 +117,13 @@ jobs:
       - name: Sign the dists with Sigstore
         uses: sigstore/gh-action-sigstore-python@v3.0.0
         with:
-          inputs: >-
+          inputs: >
             ./dist/*.tar.gz
             ./dist/*.whl
       - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: >-
+        run: >
           gh release create
           "$GITHUB_REF_NAME"
           --repo "$GITHUB_REPOSITORY"
@@ -102,7 +131,7 @@ jobs:
       - name: Upload artifact signatures to GitHub Release
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: >-
+        run: >
           gh release upload
           "$GITHUB_REF_NAME" dist/**
           --repo "$GITHUB_REPOSITORY"
@@ -110,7 +139,7 @@ jobs:
   publish-to-testpypi:
     name: Publish Python 🐍 distribution 📦 to TestPyPI
     needs:
-      - build
+      - test
     runs-on: ubuntu-latest
 
     environment:
@@ -121,13 +150,13 @@ jobs:
       id-token: write # IMPORTANT: mandatory for trusted publishing
 
     steps:
-      - name: Download artifact for Python ${{ env.PYTHON_VERSION }}
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: shortly-${{ env.PYTHON_VERSION }}
           path: dist/
 
-      - name: Publish distribution 📦 to TestPyPI # Note: Although we build multiple versions, only one is uploaded
+      - name: Publish distribution 📦 to TestPyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/

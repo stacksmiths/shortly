@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "shortly"
-version = "0.1.1"
+version = "0.1.2"
 description = "FastAPI-powered URL shortener for quick, reliable links"
 authors = ["John Ajera <your-email@example.com>"]
 readme = "README.rst"
@@ -17,6 +17,10 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Framework :: FastAPI",
+]
+packages = [
+{ include = "src/" },
+{ include = "src/**/*.py" },
 ]
 
 [tool.poetry.dependencies]

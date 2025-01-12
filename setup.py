@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="shortly",
-    version="0.1.1",
+    version="0.1.2",
     author="John Ajera",
     description="FastAPI-powered URL shortener for quick, reliable links",
     long_description=open("README.rst", encoding="utf-8").read(),
