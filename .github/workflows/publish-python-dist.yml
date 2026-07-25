@@ -30,9 +30,7 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Install Build Requirements
-        run: |
-          poetry self add poetry-core
-          poetry install --no-root
+        run: poetry install --no-root
 
       - name: Build the Python distribution
         run: poetry build
