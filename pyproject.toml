@@ -24,7 +24,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.9"
+python = ">=3.10"
 fastapi = ">=0.115.6"
 pydantic = ">=2.10.5"
 qrcode = {extras = ["pil"], version = ">=7.3.1"}
@@ -50,7 +50,7 @@ Issues = "https://github.com/stacksmiths/shortly/issues"
 
 [tool.black]
 line-length = 79
-target-version = ["py39", "py310", "py311", "py312", "py313"]
+target-version = ["py310", "py311", "py312", "py313"]
 
 [tool.flake8]
 max-line-length = 79
