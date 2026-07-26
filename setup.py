@@ -19,7 +19,7 @@ setup(
         "Operating System :: OS Independent",
         "Framework :: FastAPI",
     ],
-    python_requires=">=9",
+    python_requires=">=3.10",
     entry_points={
         "console_scripts": [
             "shortly=src.shortly.main:main",
